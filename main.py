@@ -62,13 +62,16 @@ def check_feed(last_id):
             return last_id  # Nothing to do
 
         latest = feed.entries[0]
-        entry_id = latest.get("id", latest.get("link"))
+        entry_id = latest.get("id", latest.get("guid"))
 
         if entry_id != last_id:
             title = latest.get("title", "New RSS Entry")
             link = latest.get("link", "")
             summary = latest.get("summary", "")
-            send_notification(title, f"{summary}\n{link}")
+            if link != "https://hisinone.unibw.de:443/qisserver/pages/sul/examAssessment/personExamsReadonly.xhtml?_flowId=examsOverviewForPerson-flow":
+                send_notification(title, f"{summary}\n{link}")
+            else:
+                send_notification("Exam Notification", summary , priority=4)
             return entry_id
 
         return last_id
