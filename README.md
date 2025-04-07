@@ -1,5 +1,5 @@
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
-![Build](https://img.shields.io/github/actions/workflow/status/JKB0DY/rss-to-gotify/docker-publish.yml)
+![Build](https://img.shields.io/github/actions/workflow/status/JKB0DY/rss-via-gotify/docker-publish.yml)
 
 # RSS to Gotify Notifier
 
