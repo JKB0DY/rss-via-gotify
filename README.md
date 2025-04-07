@@ -1,5 +1,5 @@
 ![MIT License](https://img.shields.io/badge/license-MIT-green)
-![Build](https://img.shields.io/github/actions/workflow/status/JKB0DY/rss-to-gotify/docker-image.yml)
+![Build](https://img.shields.io/github/actions/workflow/status/JKB0DY/rss-to-gotify/docker-publish.yml)
 
 # RSS to Gotify Notifier
 
@@ -47,7 +47,7 @@ docker run -d \
 ### Use the available Release
 
 ```bash
-docker image ##downloawd somehow
+docker pull ghcr.io/jkb0dy/rss-via-gotify:main
 docker run -d \
     -e GOTIFY_URL=https://your-gotify-instance.com \
     -e APP_TOKEN=your_gotify_token \
