@@ -42,9 +42,8 @@ def send_notification(title, message, priority=5):
     """Send a push notification to Gotify."""
     try:
         response = requests.post(
-            f"{GOTIFY_URL}/message",
-            json={"title": title, "message": message, "priority": priority},
-            headers={"X-Gotify-Key": APP_TOKEN}
+            f"{GOTIFY_URL}/message?token={APP_TOKEN}",
+            json={"title": title, "message": message, "priority": priority}
         )
         response.raise_for_status()
     except Exception as e:
@@ -69,10 +68,10 @@ def check_feed(last_id):
             title = latest.get("title", "New RSS Entry")
             link = latest.get("link", "")
             summary = latest.get("summary", "")
-            if link != "https://hisinone.unibw.de:443/qisserver/pages/sul/examAssessment/personExamsReadonly.xhtml?_flowId=examsOverviewForPerson-flow":
+            if summary != "Summary:":
                 send_notification(title, f"{summary}\n{link}")
             else:
-                send_notification("Exam Notification", summary , priority=4)
+                send_notification("Exam Notification", link , priority=4)
             return entry_id
 
         return last_id
