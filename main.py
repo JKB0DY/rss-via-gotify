@@ -15,6 +15,7 @@ except ImportError:
 GOTIFY_URL = os.getenv("GOTIFY_URL")
 APP_TOKEN = os.getenv("APP_TOKEN")
 RSS_FEED_URL = os.getenv("RSS_FEED_URL")
+USER_AGENT = os.getenv("USER_AGENT", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
 CHECK_INTERVAL = int(os.getenv("CHECK_INTERVAL", 300))
 STATE_FILE = "feed_state.json"
 
@@ -52,7 +53,7 @@ def send_notification(title, message, priority=5):
 def check_feed(last_id):
     """Check the RSS feed and return a new ID if there's a new entry."""
     try:
-        feed = feedparser.parse(RSS_FEED_URL, response_headers={'content-type': 'application/rss+xml'})
+        feed = feedparser.parse(RSS_FEED_URL, response_headers={'content-type': 'application/rss+xml'}, agent=USER_AGENT)
 
         # Check for parsing errors or bad status
         if feed.bozo:
