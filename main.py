@@ -49,16 +49,23 @@ def send_notification(title, message, priority=5):
     except Exception as e:
         print(f"Failed to send notification: {e}")
 
-def check_feed(last_id):
-    """Check the RSS feed and return a new ID if there's a new entry."""
+def fetch_feed():
     try:
         feed = feedparser.parse(RSS_FEED_URL, agent=USER_AGENT)
 
-        # Check for parsing errors or bad status
         if feed.bozo:
-            raise Exception(f"Feed parsing failed: {feed.bozo_exception}")
+            raise Exception(f"Feed parsing error: {feed.bozo_exception}")
 
-        if not feed.entries:
+    except Exception as e:
+        send_notification("Feed Fetch Error", str(e), priority=5)
+        feed = None
+
+    return feed
+
+def check_feed(last_id, feed):
+    """Check the RSS feed and return a new ID if there's a new entry."""
+    try:
+        if not feed:
             return last_id  # Nothing to do
 
         latest = feed.entries[0]
@@ -94,7 +101,12 @@ def main():
 
     while True:
         try:
-            new_id = check_feed(last_id)
+            feed = fetch_feed()
+            if (feed is None) or (feed.entries is None):
+                send_notification("Feed Error", "Feed is empty or invalid.", priority=4)
+                time.sleep(CHECK_INTERVAL)
+                continue
+            new_id = check_feed(last_id, feed.entries)
 
             if new_id != last_id:
                 last_id = new_id
