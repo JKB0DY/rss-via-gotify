@@ -53,7 +53,7 @@ def send_notification(title, message, priority=5):
 def check_feed(last_id):
     """Check the RSS feed and return a new ID if there's a new entry."""
     try:
-        feed = feedparser.parse(RSS_FEED_URL, response_headers={'content-type': 'application/rss+xml'}, agent=USER_AGENT)
+        feed = feedparser.parse(RSS_FEED_URL, agent=USER_AGENT)
 
         # Check for parsing errors or bad status
         if feed.bozo:
