@@ -15,6 +15,7 @@ except ImportError:
 GOTIFY_URL = os.getenv("GOTIFY_URL")
 APP_TOKEN = os.getenv("APP_TOKEN")
 RSS_FEED_URL = os.getenv("RSS_FEED_URL")
+USER_AGENT = os.getenv("USER_AGENT", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36")
 CHECK_INTERVAL = int(os.getenv("CHECK_INTERVAL", 300))
 STATE_FILE = "feed_state.json"
 
@@ -41,33 +42,40 @@ def send_notification(title, message, priority=5):
     """Send a push notification to Gotify."""
     try:
         response = requests.post(
-            f"{GOTIFY_URL}/message",
-            json={"title": title, "message": message, "priority": priority},
-            headers={"X-Gotify-Key": APP_TOKEN}
+            f"{GOTIFY_URL}/message?token={APP_TOKEN}",
+            json={"title": title, "message": message, "priority": priority}
         )
         response.raise_for_status()
     except Exception as e:
         print(f"Failed to send notification: {e}")
 
-def check_feed(last_id):
+def fetch_feed():
+    try:
+        feed = feedparser.parse(RSS_FEED_URL, agent=USER_AGENT)
+
+        if feed.bozo:
+            raise Exception(f"Feed parsing error: {feed.bozo_exception}")
+
+    except Exception as e:
+        send_notification("Feed Fetch Error", str(e), priority=5)
+        feed = None
+
+    return feed
+
+def check_feed(last_id, feed):
     """Check the RSS feed and return a new ID if there's a new entry."""
     try:
-        feed = feedparser.parse(RSS_FEED_URL)
-
-        # Check for parsing errors or bad status
-        if feed.bozo:
-            raise Exception(f"Feed parsing failed: {feed.bozo_exception}")
-
-        if not feed.entries:
+        if not feed:
             return last_id  # Nothing to do
 
-        latest = feed.entries[0]
-        entry_id = latest.get("id", latest.get("link"))
+        latest = feed[0]
+        entry_id = latest.get("id", latest.get("guid"))
 
         if entry_id != last_id:
             title = latest.get("title", "New RSS Entry")
-            link = latest.get("link", "")
-            summary = latest.get("summary", "")
+            link = latest.get("link", "No Link Available")
+            summary = latest.get("summary", "No Summary Available")
+
             send_notification(title, f"{summary}\n{link}")
             return entry_id
 
@@ -91,7 +99,12 @@ def main():
 
     while True:
         try:
-            new_id = check_feed(last_id)
+            feed = fetch_feed()
+            if (feed is None) or (feed.entries is None):
+                send_notification("Feed Error", "Feed is empty or invalid.", priority=4)
+                time.sleep(CHECK_INTERVAL)
+                continue
+            new_id = check_feed(last_id, feed.entries)
 
             if new_id != last_id:
                 last_id = new_id
