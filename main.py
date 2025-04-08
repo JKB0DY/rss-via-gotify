@@ -68,17 +68,15 @@ def check_feed(last_id, feed):
         if not feed:
             return last_id  # Nothing to do
 
-        latest = feed.entries[0]
+        latest = feed[0]
         entry_id = latest.get("id", latest.get("guid"))
 
         if entry_id != last_id:
             title = latest.get("title", "New RSS Entry")
-            link = latest.get("link", "")
-            summary = latest.get("summary", "")
-            if summary != "Summary:":
-                send_notification(title, f"{summary}\n{link}")
-            else:
-                send_notification("Exam Notification", link , priority=4)
+            link = latest.get("link", "No Link Available")
+            summary = latest.get("summary", "No Summary Available")
+
+            send_notification(title, f"{summary}\n{link}")
             return entry_id
 
         return last_id
