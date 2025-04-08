@@ -14,5 +14,7 @@ __pycache__/
 *.log
 *.pid
 *.gz
+
+# Pytest
 feed_state.json
 testing.py
