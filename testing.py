@@ -42,6 +42,7 @@ if entry_id != 0:
         print("examAssessment entry found.")
         print(f"Title: {title}")
         print(f"Link: {link}")
+        print(f"Summary: {summary}")
     try:
         with open(STATE_FILE, "w") as f:
             json.dump({"last_id": entry_id}, f)
